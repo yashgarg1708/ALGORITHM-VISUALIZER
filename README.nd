@@ -1,0 +1,94 @@
+# Algorithm Visualizer Project
+
+## Overview
+
+The Algorithm Visualizer is a project built with C++ and SFML to visually demonstrate various algorithms in an intuitive and interactive way. It provides real-time visualizations for sorting and graph algorithms, helping users better understand their underlying processes.
+
+## Features
+
+- **Sorting Algorithms Visualized**:
+  - Implementation and visualization of 5 different sorting algorithms:
+    - Bubble Sort
+    - Selection Sort
+    - Merge Sort
+    - Quick Sort
+    - Insertion Sort
+
+- **Graph Searching Algorithms Visualized**:
+  - Implementation and visualization of 3 different graph searching algorithms:
+    - Breadth-First Search (BFS)
+    - Depth-First Search (DFS)
+    - A* Search
+
+- **Interactive Interface**:
+  - Users can observe the algorithms as they execute step by step.
+  - The interface allows users to control the progress of the visualization, providing better insight into each algorithm's operation.
+
+## Requirements
+
+To run this project, ensure you have the following installed:
+
+- C++11 or later
+- SFML (Simple and Fast Multimedia Library) installed on your system.
+
+### Install SFML (MacOS)
+
+You can install SFML using Homebrew:
+
+```bash
+brew install sfml
+```
+
+## Compilation Instructions (MacOS)
+
+To compile the project on MacOS, use the following command in your terminal:
+
+```bash
+g++ -std=c++11 main.cpp graph.cpp display_graph.cpp sorting.cpp display.cpp -I/opt/homebrew/Cellar/sfml/2.6.1/include -o prog -L/opt/homebrew/Cellar/sfml/2.6.1/lib -lsfml-graphics -lsfml-window -lsfml-system
+```
+
+This command will compile the project and link the necessary SFML libraries.
+
+## Running the Project
+
+Once the `prog` executable is created, you can run the program using:
+
+```bash
+./prog
+```
+
+## Example Usage
+
+- Upon running the program, you will be prompted to select the type of algorithm you want to visualize.
+- Choose between sorting algorithms and graph search algorithms.
+- The visualization will display the algorithm's progress on the selected data set or graph.
+
+## Project Structure
+
+- `main.cpp`: The entry point of the program.
+- `graph.cpp`: Contains the implementation of graph algorithms such as BFS, DFS, and A*.
+- `display_graph.cpp`: Handles the visualization of graph algorithms.
+- `sorting.cpp`: Contains the implementation of sorting algorithms.
+- `display.cpp`: Manages the visualization of sorting algorithms.
+
+## Future Enhancements
+
+- **Additional Algorithms**: Expanding the project to include more sorting and graph algorithms.
+- **Customization**: Allowing users to control dataset size, sorting speeds, and graph structures dynamically.
+- **Performance Metrics**: Adding features to display algorithm performance statistics such as execution time and space complexity.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+
+## Contributing
+
+Contributions are welcome! Feel free to fork the project, create a new branch, and submit pull requests for bug fixes, enhancements, or new features.
+
+---
+
+This project is a great resource for developers, students, and anyone interested in gaining a deeper understanding of algorithms through interactive visualization.
+
+## Author
+
+[YASH GARG](https://github.com/yashgarg170)
