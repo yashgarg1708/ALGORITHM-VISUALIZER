@@ -24,6 +24,20 @@ The Algorithm Visualizer is a project built with C++ and SFML to visually demons
   - Users can observe the algorithms as they execute step by step.
   - The interface allows users to control the progress of the visualization, providing better insight into each algorithm's operation.
 
+## How It Works
+
+### Graph Visualization
+
+- Once the grid appears:
+  - **First Click**: Place the starting point.
+  - **Second Click**: Place the ending point.
+  - **Subsequent Clicks**: Place blocks to simulate obstacles.
+  - **Press the Space Bar**: Start the graph search algorithm to find the optimal path.
+
+### Sorting Visualization
+
+- Select a sorting algorithm and watch the data being sorted visually, with control over the process.
+
 ## Requirements
 
 To run this project, ensure you have the following installed:
@@ -61,7 +75,8 @@ Once the `prog` executable is created, you can run the program using:
 
 - Upon running the program, you will be prompted to select the type of algorithm you want to visualize.
 - Choose between sorting algorithms and graph search algorithms.
-- The visualization will display the algorithm's progress on the selected data set or graph.
+- In graph algorithms, place your start point, end point, and blocks, then press the space bar to start the visualization.
+- Watch the sorting or searching algorithm in action as it progresses step by step on the selected data set or graph.
 
 ## Project Structure
 
@@ -77,9 +92,6 @@ Once the `prog` executable is created, you can run the program using:
 - **Customization**: Allowing users to control dataset size, sorting speeds, and graph structures dynamically.
 - **Performance Metrics**: Adding features to display algorithm performance statistics such as execution time and space complexity.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
 
 ## Contributing
 
@@ -91,4 +103,13 @@ This project is a great resource for developers, students, and anyone interested
 
 ## Author
 
+
 [YASH GARG](https://github.com/yashgarg170)
+
+
+
+
+![Screenshot 2024-08-20 at 9 23 04 PM](https://github.com/user-attachments/assets/a5696622-983c-4474-84e3-d86a0437eefa)
+![Screenshot 2024-08-20 at 9 24 02 PM](https://github.com/user-attachments/assets/4e877fd2-e8f7-4c84-b065-071fbdddeb9b)
+
+![Screenshot 2024-08-20 at 9 26 09 PM](https://github.com/user-attachments/assets/2b059195-126f-4dcf-8574-259324b83209)
