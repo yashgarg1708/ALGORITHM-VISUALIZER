@@ -10,7 +10,7 @@ The Algorithm Visualizer is a project built with C++ and SFML to visually demons
   - Implementation and visualization of 5 different sorting algorithms:
     - Bubble Sort
     - Selection Sort
-    - Merge Sort
+    - Heap Sort
     - Quick Sort
     - Insertion Sort
 
