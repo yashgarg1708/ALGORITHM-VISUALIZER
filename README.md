@@ -18,7 +18,7 @@ The Algorithm Visualizer is a project built with C++ and SFML to visually demons
   - Implementation and visualization of 3 different graph searching algorithms:
     - Breadth-First Search (BFS)
     - Depth-First Search (DFS)
-    - A* Search
+    - Dijkstra Search
 
 - **Interactive Interface**:
   - Users can observe the algorithms as they execute step by step.
