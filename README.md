@@ -104,7 +104,7 @@ This project is a great resource for developers, students, and anyone interested
 ## Author
 
 
-[YASH GARG](https://github.com/yashgarg170)
+[YASH GARG](https://github.com/yashgarg1708)
 
 
 
