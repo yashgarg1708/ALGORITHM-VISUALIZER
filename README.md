@@ -2,114 +2,122 @@
 
 ## Overview
 
-The Algorithm Visualizer is a project built with C++ and SFML to visually demonstrate various algorithms in an intuitive and interactive way. It provides real-time visualizations for sorting and graph algorithms, helping users better understand their underlying processes.
+Algorithm Visualizer is a C++ and SFML project that demonstrates sorting and graph pathfinding algorithms in an interactive, real-time UI.
 
 ## Features
 
-- **Sorting Algorithms Visualized**:
-  - Implementation and visualization of 5 different sorting algorithms:
-    - Bubble Sort
-    - Selection Sort
-    - Heap Sort
-    - Quick Sort
-    - Insertion Sort
+### Sorting Algorithms Visualized
 
-- **Graph Searching Algorithms Visualized**:
-  - Implementation and visualization of 3 different graph searching algorithms:
-    - Breadth-First Search (BFS)
-    - Depth-First Search (DFS)
-    - Dijkstra Search
+- Bubble Sort
+- Selection Sort
+- Heap Sort
+- Quick Sort
+- Insertion Sort
 
-- **Interactive Interface**:
-  - Users can observe the algorithms as they execute step by step.
-  - The interface allows users to control the progress of the visualization, providing better insight into each algorithm's operation.
+### Graph Algorithms Visualized
+
+- Breadth-First Search (BFS)
+- Depth-First Search (DFS)
+- Dijkstra
+
+### Interactive Interface
+
+- Real-time animation for both sorting and graph traversal.
+- Pause/resume, rerun, speed controls, and randomization.
+- Visual state cues for comparisons, visited nodes, and final path.
 
 ## How It Works
 
 ### Graph Visualization
 
-- Once the grid appears:
-  - **First Click**: Place the starting point.
-  - **Second Click**: Place the ending point.
-  - **Subsequent Clicks**: Place blocks to simulate obstacles.
-  - **Press the Space Bar**: Start the graph search algorithm to find the optimal path.
+- Open graph mode from the console menu.
+- First left click places the **Start** node.
+- Second left click places the **End** node.
+- Further left clicks toggle **Block** cells.
+- Right click erases a cell (also removes Start/End if clicked).
+- Press `Space` to start traversal.
 
 ### Sorting Visualization
 
-- Select a sorting algorithm and watch the data being sorted visually, with control over the process.
+- Choose a sorting algorithm from the sorting window (`1..5`).
+- Press `Space` to start/pause/resume.
+- Press `Enter` to rerun on the same data.
+- Press `R` to randomize the dataset.
+
+## Controls
+
+### Sorting Window
+
+- `1..5`: choose algorithm
+- `Space`: start / pause / resume
+- `Enter`: rerun current algorithm
+- `R`: randomize data
+- `Up/Down`: adjust speed
+- `Esc`: close window
+
+### Graph Window
+
+- `Left click`: Start -> End -> toggle Blocks
+- `Right click`: erase cell
+- `1/2/3`: BFS / DFS / Dijkstra
+- `Space`: start / pause / resume
+- `Enter`: rerun traversal
+- `R`: randomize blocks
+- `C`: clear grid
+- `Up/Down`: adjust speed
+- `Esc`: close window
 
 ## Requirements
 
-To run this project, ensure you have the following installed:
+- C++17 or later
+- SFML 3.x
+- CMake 3.16+
 
-- C++11 or later
-- SFML (Simple and Fast Multimedia Library) installed on your system.
-
-### Install SFML (MacOS)
-
-You can install SFML using Homebrew:
+### Install SFML (macOS)
 
 ```bash
 brew install sfml
 ```
 
-## Compilation Instructions (MacOS)
-
-To compile the project on MacOS, use the following command in your terminal:
+## Build Instructions
 
 ```bash
-g++ -std=c++11 main.cpp graph.cpp display_graph.cpp sorting.cpp display.cpp -I/opt/homebrew/Cellar/sfml/2.6.1/include -o prog -L/opt/homebrew/Cellar/sfml/2.6.1/lib -lsfml-graphics -lsfml-window -lsfml-system
+cmake -S . -B build
+cmake --build build
 ```
 
-This command will compile the project and link the necessary SFML libraries.
-
-## Running the Project
-
-Once the `prog` executable is created, you can run the program using:
+## Run
 
 ```bash
-./prog
+./build/algoviz
 ```
-
-## Example Usage
-
-- Upon running the program, you will be prompted to select the type of algorithm you want to visualize.
-- Choose between sorting algorithms and graph search algorithms.
-- In graph algorithms, place your start point, end point, and blocks, then press the space bar to start the visualization.
-- Watch the sorting or searching algorithm in action as it progresses step by step on the selected data set or graph.
 
 ## Project Structure
 
-- `main.cpp`: The entry point of the program.
-- `graph.cpp`: Contains the implementation of graph algorithms such as BFS, DFS, and A*.
-- `display_graph.cpp`: Handles the visualization of graph algorithms.
-- `sorting.cpp`: Contains the implementation of sorting algorithms.
-- `display.cpp`: Manages the visualization of sorting algorithms.
+- `main.cpp`: entry point + menu routing
+- `display.cpp`: sorting renderer and controls
+- `display_graph.cpp`: graph renderer and controls
+- `sorting.cpp` / `sorting.hpp`: sorting logic and operation generation
+- `graph.cpp` / `graph.hpp`: BFS/DFS/Dijkstra logic and traversal result model
 
 ## Future Enhancements
 
-- **Additional Algorithms**: Expanding the project to include more sorting and graph algorithms.
-- **Customization**: Allowing users to control dataset size, sorting speeds, and graph structures dynamically.
-- **Performance Metrics**: Adding features to display algorithm performance statistics such as execution time and space complexity.
-
+- Add more algorithms.
+- Add UI options for custom grid size and dataset size.
+- Show runtime/operation metrics per algorithm.
 
 ## Contributing
 
-Contributions are welcome! Feel free to fork the project, create a new branch, and submit pull requests for bug fixes, enhancements, or new features.
-
----
-
-This project is a great resource for developers, students, and anyone interested in gaining a deeper understanding of algorithms through interactive visualization.
+Contributions are welcome via issues and pull requests.
 
 ## Author
 
+[Yash Garg](https://github.com/yashgarg1708)
 
-[YASH GARG](https://github.com/yashgarg1708)
+<img width="1512" height="901" alt="Screenshot 2026-03-08 at 4 02 03 PM" src="https://github.com/user-attachments/assets/bdb10ca2-a083-48e9-b751-583fa9558a57" />
+<img width="1512" height="900" alt="Screenshot 2026-03-08 at 4 02 32 PM" src="https://github.com/user-attachments/assets/283d912e-bc88-44b3-85ba-a4c08db42d6c" />
+<img width="1512" height="913" alt="Screenshot 2026-03-08 at 4 02 53 PM" src="https://github.com/user-attachments/assets/242e84ab-57e9-4f8c-8806-936dac9c689e" />
+<img width="1512" height="951" alt="Screenshot 2026-03-08 at 4 08 13 PM" src="https://github.com/user-attachments/assets/87f0bcae-d5ba-40a6-a57f-eda63f3211d0" />
+<img width="1509" height="952" alt="Screenshot 2026-03-08 at 4 08 57 PM" src="https://github.com/user-attachments/assets/601b4580-46bc-4c54-bb54-7cda5391b8bf" />
 
 
-
-
-![Screenshot 2024-08-20 at 9 23 04 PM](https://github.com/user-attachments/assets/a5696622-983c-4474-84e3-d86a0437eefa)
-![Screenshot 2024-08-20 at 9 24 02 PM](https://github.com/user-attachments/assets/4e877fd2-e8f7-4c84-b065-071fbdddeb9b)
-
-![Screenshot 2024-08-20 at 9 26 09 PM](https://github.com/user-attachments/assets/2b059195-126f-4dcf-8574-259324b83209)
