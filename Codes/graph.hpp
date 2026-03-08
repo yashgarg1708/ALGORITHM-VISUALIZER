@@ -1,23 +1,47 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
-#include <SFML/Graphics.hpp>
 #include <vector>
 
-// Declare the enum in this file
-enum CellType { EMPTY, START, END, BLOCK, PATH };
+enum class CellType {
+    Empty,
+    Start,
+    End,
+    Block,
+    Visited,
+    Path
+};
 
-// Declare constants for grid dimensions and delay
-extern const int GRID_WIDTH;
-extern const int GRID_HEIGHT;
-extern const int DELAY_MS;
+struct GridPoint {
+    int x = 0;
+    int y = 0;
+};
 
-// Function declarations
-void runBFS(std::vector<std::vector<CellType>>& grid, sf::Vector2i startPos, sf::Vector2i endPos, sf::RenderWindow &window);
-void runDFS(std::vector<std::vector<CellType>>& grid, sf::Vector2i startPos, sf::Vector2i endPos, sf::RenderWindow &window);
-void runDijkstra(std::vector<std::vector<CellType>>& grid, sf::Vector2i startPos, sf::Vector2i endPos, sf::RenderWindow &window);
+inline bool operator==(const GridPoint& a, const GridPoint& b) {
+    return a.x == b.x && a.y == b.y;
+}
 
-// Declare getNeighbors function
-std::vector<sf::Vector2i> getNeighbors(int x, int y);
+inline bool operator!=(const GridPoint& a, const GridPoint& b) {
+    return !(a == b);
+}
+
+enum class GraphAlgorithm {
+    BFS = 1,
+    DFS = 2,
+    Dijkstra = 3
+};
+
+using Grid = std::vector<std::vector<CellType>>;
+
+struct GraphTraversalResult {
+    std::vector<GridPoint> visitOrder;
+    std::vector<GridPoint> path;
+    bool found = false;
+};
+
+const char* graphAlgorithmName(GraphAlgorithm algorithm);
+bool isInsideGrid(const Grid& grid, const GridPoint& point);
+std::vector<GridPoint> getNeighbors(const GridPoint& point);
+GraphTraversalResult traverseGrid(const Grid& grid, GridPoint start, GridPoint end, GraphAlgorithm algorithm);
 
 #endif

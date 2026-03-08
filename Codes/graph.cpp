@@ -1,163 +1,235 @@
 #include "graph.hpp"
-#include "display_graph.hpp"
+
+#include <algorithm>
+#include <climits>
 #include <queue>
 #include <stack>
-#include <thread>
-#include <chrono>
-#include <functional>
 
-// Custom comparator for priority queue (used in Dijkstra)
-struct ComparePairs {
-    bool operator()(const std::pair<int, sf::Vector2i>& a, const std::pair<int, sf::Vector2i>& b) const {
-        return a.first > b.first; // Compare based on distance (Dijkstra's priority queue)
+namespace {
+
+GridPoint invalidPoint() {
+    return GridPoint{-1, -1};
+}
+
+bool isBlock(const Grid& grid, const GridPoint& p) {
+    return grid[p.x][p.y] == CellType::Block;
+}
+
+std::vector<GridPoint> reconstructPath(
+    const std::vector<std::vector<GridPoint>>& previous,
+    GridPoint start,
+    GridPoint end
+) {
+    std::vector<GridPoint> path;
+
+    if (start == end) {
+        path.push_back(start);
+        return path;
+    }
+
+    GridPoint cursor = end;
+    while (cursor != invalidPoint()) {
+        path.push_back(cursor);
+        if (cursor == start) {
+            break;
+        }
+        cursor = previous[cursor.x][cursor.y];
+    }
+
+    if (path.empty() || path.back() != start) {
+        return {};
+    }
+
+    std::reverse(path.begin(), path.end());
+    return path;
+}
+
+GraphTraversalResult runBfs(const Grid& grid, GridPoint start, GridPoint end) {
+    GraphTraversalResult result;
+
+    const int width = static_cast<int>(grid.size());
+    const int height = static_cast<int>(grid[0].size());
+    std::vector<std::vector<bool>> visited(width, std::vector<bool>(height, false));
+    std::vector<std::vector<GridPoint>> previous(width, std::vector<GridPoint>(height, invalidPoint()));
+    std::queue<GridPoint> q;
+
+    q.push(start);
+    visited[start.x][start.y] = true;
+
+    while (!q.empty()) {
+        GridPoint current = q.front();
+        q.pop();
+        result.visitOrder.push_back(current);
+
+        if (current == end) {
+            result.found = true;
+            result.path = reconstructPath(previous, start, end);
+            return result;
+        }
+
+        for (const GridPoint& neighbor : getNeighbors(current)) {
+            if (!isInsideGrid(grid, neighbor) || isBlock(grid, neighbor) || visited[neighbor.x][neighbor.y]) {
+                continue;
+            }
+
+            visited[neighbor.x][neighbor.y] = true;
+            previous[neighbor.x][neighbor.y] = current;
+            q.push(neighbor);
+        }
+    }
+
+    return result;
+}
+
+GraphTraversalResult runDfs(const Grid& grid, GridPoint start, GridPoint end) {
+    GraphTraversalResult result;
+
+    const int width = static_cast<int>(grid.size());
+    const int height = static_cast<int>(grid[0].size());
+    std::vector<std::vector<bool>> visited(width, std::vector<bool>(height, false));
+    std::vector<std::vector<GridPoint>> previous(width, std::vector<GridPoint>(height, invalidPoint()));
+    std::stack<GridPoint> st;
+
+    st.push(start);
+    visited[start.x][start.y] = true;
+
+    while (!st.empty()) {
+        GridPoint current = st.top();
+        st.pop();
+        result.visitOrder.push_back(current);
+
+        if (current == end) {
+            result.found = true;
+            result.path = reconstructPath(previous, start, end);
+            return result;
+        }
+
+        std::vector<GridPoint> neighbors = getNeighbors(current);
+        for (auto it = neighbors.rbegin(); it != neighbors.rend(); ++it) {
+            const GridPoint& neighbor = *it;
+            if (!isInsideGrid(grid, neighbor) || isBlock(grid, neighbor) || visited[neighbor.x][neighbor.y]) {
+                continue;
+            }
+
+            visited[neighbor.x][neighbor.y] = true;
+            previous[neighbor.x][neighbor.y] = current;
+            st.push(neighbor);
+        }
+    }
+
+    return result;
+}
+
+struct QueueNode {
+    int dist;
+    GridPoint point;
+};
+
+struct CompareQueueNode {
+    bool operator()(const QueueNode& a, const QueueNode& b) const {
+        return a.dist > b.dist;
     }
 };
 
-// BFS Implementation with correct termination and no path paving
-void runBFS(std::vector<std::vector<CellType>>& grid, sf::Vector2i startPos, sf::Vector2i endPos, sf::RenderWindow &window) {
-    std::queue<sf::Vector2i> q;
-    std::vector<std::vector<bool>> visited(GRID_WIDTH, std::vector<bool>(GRID_HEIGHT, false));
+GraphTraversalResult runDijkstra(const Grid& grid, GridPoint start, GridPoint end) {
+    GraphTraversalResult result;
 
-    q.push(startPos);
-    visited[startPos.x][startPos.y] = true;
+    const int width = static_cast<int>(grid.size());
+    const int height = static_cast<int>(grid[0].size());
+    std::vector<std::vector<int>> distance(width, std::vector<int>(height, INT_MAX));
+    std::vector<std::vector<GridPoint>> previous(width, std::vector<GridPoint>(height, invalidPoint()));
+    std::vector<std::vector<bool>> visited(width, std::vector<bool>(height, false));
 
-    while (!q.empty()) {
-        sf::Vector2i current = q.front();
-        q.pop();
-
-        // Check if we reached the end
-        if (current == endPos) {
-            return; // Terminate BFS once end is reached
-        }
-
-        // Visualization step
-        if (current != startPos && current != endPos) {
-            grid[current.x][current.y] = PATH; // Temporary marking for visualization, not final path
-        }
-
-        window.clear();
-        drawGrid(grid, window);
-        window.display();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_MS));
-
-        // Explore neighbors
-        for (auto& neighbor : getNeighbors(current.x, current.y)) {
-            if (neighbor.x >= 0 && neighbor.x < GRID_WIDTH && neighbor.y >= 0 && neighbor.y < GRID_HEIGHT &&
-                grid[neighbor.x][neighbor.y] != BLOCK && !visited[neighbor.x][neighbor.y]) {
-                q.push(neighbor);
-                visited[neighbor.x][neighbor.y] = true;
-            }
-        }
-    }
-}
-
-// DFS Implementation with correct termination and no path paving
-void runDFS(std::vector<std::vector<CellType>>& grid, sf::Vector2i startPos, sf::Vector2i endPos, sf::RenderWindow &window) {
-    std::stack<sf::Vector2i> s;
-    std::vector<std::vector<bool>> visited(GRID_WIDTH, std::vector<bool>(GRID_HEIGHT, false));
-
-    s.push(startPos);
-    visited[startPos.x][startPos.y] = true;
-
-    while (!s.empty()) {
-        sf::Vector2i current = s.top();
-        s.pop();
-
-        // Check if we reached the end
-        if (current == endPos) {
-            return; // Terminate DFS once end is reached
-        }
-
-        // Visualization step
-        if (current != startPos && current != endPos) {
-            grid[current.x][current.y] = PATH; // Temporary marking for visualization, not final path
-        }
-
-        window.clear();
-        drawGrid(grid, window);
-        window.display();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_MS));
-
-        // Explore neighbors
-        for (auto& neighbor : getNeighbors(current.x, current.y)) {
-            if (neighbor.x >= 0 && neighbor.x < GRID_WIDTH && neighbor.y >= 0 && neighbor.y < GRID_HEIGHT &&
-                grid[neighbor.x][neighbor.y] != BLOCK && !visited[neighbor.x][neighbor.y]) {
-                s.push(neighbor);
-                visited[neighbor.x][neighbor.y] = true;
-            }
-        }
-    }
-}
-
-// Dijkstra Implementation with final path visualization
-void runDijkstra(std::vector<std::vector<CellType>>& grid, sf::Vector2i startPos, sf::Vector2i endPos, sf::RenderWindow &window) {
-    std::priority_queue<std::pair<int, sf::Vector2i>, std::vector<std::pair<int, sf::Vector2i>>, ComparePairs> pq;
-    std::vector<std::vector<int>> distances(GRID_WIDTH, std::vector<int>(GRID_HEIGHT, INT_MAX));
-    std::vector<std::vector<sf::Vector2i>> previous(GRID_WIDTH, std::vector<sf::Vector2i>(GRID_HEIGHT, {-1, -1}));
-    std::vector<std::vector<bool>> visited(GRID_WIDTH, std::vector<bool>(GRID_HEIGHT, false));
-
-    pq.push({0, startPos});
-    distances[startPos.x][startPos.y] = 0;
+    std::priority_queue<QueueNode, std::vector<QueueNode>, CompareQueueNode> pq;
+    distance[start.x][start.y] = 0;
+    pq.push(QueueNode{0, start});
 
     while (!pq.empty()) {
-        std::pair<int, sf::Vector2i> current_pair = pq.top();
-        sf::Vector2i current = current_pair.second;
+        QueueNode node = pq.top();
         pq.pop();
 
+        GridPoint current = node.point;
         if (visited[current.x][current.y]) {
             continue;
         }
 
         visited[current.x][current.y] = true;
+        result.visitOrder.push_back(current);
 
-        if (current != startPos && current != endPos) {
-            grid[current.x][current.y] = PATH;  // Pave path during exploration for Dijkstra
+        if (current == end) {
+            result.found = true;
+            result.path = reconstructPath(previous, start, end);
+            return result;
         }
 
-        window.clear();
-        drawGrid(grid, window);
-        window.display();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_MS));
-
-        if (current == endPos) {
-            // Backtrack the path and visualize it
-            sf::Vector2i backtrack = endPos;
-            while (backtrack != startPos) {
-                if (backtrack != startPos && backtrack != endPos) {
-                    grid[backtrack.x][backtrack.y] = END; // Final path in red
-                }
-                backtrack = previous[backtrack.x][backtrack.y];
-                
-                window.clear();
-                drawGrid(grid, window);
-                window.display();
-                std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_MS));
+        for (const GridPoint& neighbor : getNeighbors(current)) {
+            if (!isInsideGrid(grid, neighbor) || isBlock(grid, neighbor) || visited[neighbor.x][neighbor.y]) {
+                continue;
             }
-            return;
-        }
 
-        // Explore neighbors
-        for (auto& neighbor : getNeighbors(current.x, current.y)) {
-            if (neighbor.x >= 0 && neighbor.x < GRID_WIDTH && neighbor.y >= 0 && neighbor.y < GRID_HEIGHT &&
-                grid[neighbor.x][neighbor.y] != BLOCK && !visited[neighbor.x][neighbor.y]) {
-                int newDist = distances[current.x][current.y] + 1;
-                if (newDist < distances[neighbor.x][neighbor.y]) {
-                    distances[neighbor.x][neighbor.y] = newDist;
-                    previous[neighbor.x][neighbor.y] = current;
-                    pq.push({newDist, neighbor});
-                }
+            const int newDistance = distance[current.x][current.y] + 1;
+            if (newDistance < distance[neighbor.x][neighbor.y]) {
+                distance[neighbor.x][neighbor.y] = newDistance;
+                previous[neighbor.x][neighbor.y] = current;
+                pq.push(QueueNode{newDistance, neighbor});
             }
         }
     }
+
+    return result;
 }
 
-// Function to get neighbors of a node
-std::vector<sf::Vector2i> getNeighbors(int x, int y) {
-    std::vector<sf::Vector2i> neighbors = {
-        {x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}
+}  // namespace
+
+const char* graphAlgorithmName(GraphAlgorithm algorithm) {
+    switch (algorithm) {
+        case GraphAlgorithm::BFS:
+            return "BFS";
+        case GraphAlgorithm::DFS:
+            return "DFS";
+        case GraphAlgorithm::Dijkstra:
+            return "Dijkstra";
+        default:
+            return "Unknown";
+    }
+}
+
+bool isInsideGrid(const Grid& grid, const GridPoint& point) {
+    if (grid.empty() || grid[0].empty()) {
+        return false;
+    }
+
+    return point.x >= 0 && point.y >= 0
+        && point.x < static_cast<int>(grid.size())
+        && point.y < static_cast<int>(grid[0].size());
+}
+
+std::vector<GridPoint> getNeighbors(const GridPoint& point) {
+    return {
+        GridPoint{point.x + 1, point.y},
+        GridPoint{point.x - 1, point.y},
+        GridPoint{point.x, point.y + 1},
+        GridPoint{point.x, point.y - 1}
     };
-    return neighbors;
+}
+
+GraphTraversalResult traverseGrid(const Grid& grid, GridPoint start, GridPoint end, GraphAlgorithm algorithm) {
+    if (!isInsideGrid(grid, start) || !isInsideGrid(grid, end)) {
+        return {};
+    }
+
+    if (isBlock(grid, start) || isBlock(grid, end)) {
+        return {};
+    }
+
+    switch (algorithm) {
+        case GraphAlgorithm::BFS:
+            return runBfs(grid, start, end);
+        case GraphAlgorithm::DFS:
+            return runDfs(grid, start, end);
+        case GraphAlgorithm::Dijkstra:
+            return runDijkstra(grid, start, end);
+        default:
+            return {};
+    }
 }

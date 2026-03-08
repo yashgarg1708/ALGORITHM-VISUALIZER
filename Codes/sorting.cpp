@@ -1,115 +1,258 @@
-#include <SFML/Graphics.hpp>
-#include <algorithm>  // For std::swap
+#include "sorting.hpp"
 
-extern float recHs[];
-extern bool sorted;
-extern void dispSort(sf::RenderWindow &window, float recHs[], int n, int index1, int index2, bool sorted, int updateFrequency);
+#include <algorithm>
+#include <random>
 
-// Insertion Sort
-void insertionSort(sf::RenderWindow& window, float recHs[], int n, bool& sorted) {
-    int i, key, j;
-    for (i = 1; i < n; i++) {
-        key = recHs[i];
-        j = i - 1;
-        while (j >= 0 && recHs[j] > key) {
-            recHs[j + 1] = recHs[j];
-            j = j - 1;
-            dispSort(window, recHs, n, j + 1, i, false, 2);  // Call with updateFrequency
-        }
-        recHs[j + 1] = key;
+namespace {
+
+void addSwap(std::vector<SortOp>& ops, int i, int j) {
+    if (i == j) {
+        return;
     }
-    sorted = true;
-    dispSort(window, recHs, n, -1, -1, true, 2);  // Call with updateFrequency
+
+    SortOp op;
+    op.type = SortOp::Type::Swap;
+    op.i = i;
+    op.j = j;
+    ops.push_back(op);
 }
 
-// Bubble Sort
-void bubbleSort(sf::RenderWindow& window, float recHs[], int n, bool& sorted) {
-    int i, j;
-    for (i = 0; i < n-1; i++) {
-        for (j = 0; j < n-i-1; j++) {
-            if (recHs[j] > recHs[j + 1]) {
-                std::swap(recHs[j], recHs[j + 1]);
-                dispSort(window, recHs, n, j, j + 1, false, 2);  // Call with updateFrequency
+void addSet(std::vector<SortOp>& ops, int i, float value) {
+    SortOp op;
+    op.type = SortOp::Type::Set;
+    op.i = i;
+    op.value = value;
+    ops.push_back(op);
+}
+
+std::vector<SortOp> insertionSortOps(const std::vector<float>& input) {
+    std::vector<float> arr = input;
+    std::vector<SortOp> ops;
+
+    for (std::size_t i = 1; i < arr.size(); ++i) {
+        float key = arr[i];
+        int j = static_cast<int>(i) - 1;
+
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            addSet(ops, j + 1, arr[j]);
+            --j;
+        }
+
+        arr[j + 1] = key;
+        addSet(ops, j + 1, key);
+    }
+
+    return ops;
+}
+
+std::vector<SortOp> bubbleSortOps(const std::vector<float>& input) {
+    std::vector<float> arr = input;
+    std::vector<SortOp> ops;
+
+    if (arr.empty()) {
+        return ops;
+    }
+
+    for (std::size_t i = 0; i < arr.size() - 1; ++i) {
+        bool swapped = false;
+        for (std::size_t j = 0; j < arr.size() - i - 1; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                std::swap(arr[j], arr[j + 1]);
+                addSwap(ops, static_cast<int>(j), static_cast<int>(j + 1));
+                swapped = true;
             }
         }
-    }
-    sorted = true;
-    dispSort(window, recHs, n, -1, -1, true, 2);  // Call with updateFrequency
-}
 
-// Selection Sort
-void selectionSort(sf::RenderWindow& window, float recHs[], int n, bool& sorted) {
-    int i, j, min_idx;
-    for (i = 0; i < n-1; i++) {
-        min_idx = i;
-        for (j = i+1; j < n; j++) {
-            if (recHs[j] < recHs[min_idx])
-                min_idx = j;
+        if (!swapped) {
+            break;
         }
-        std::swap(recHs[min_idx], recHs[i]);
-        dispSort(window, recHs, n, min_idx, i, false, 2);  // Call with updateFrequency
     }
-    sorted = true;
-    dispSort(window, recHs, n, -1, -1, true, 2);  // Call with updateFrequency
+
+    return ops;
 }
 
-// Heap Sort Helper Function
-void heapify(sf::RenderWindow& window, float arr[], int n, int i, bool& sorted) {
-    int largest = i; // Initialize largest as root
-    int l = 2 * i + 1; // left = 2*i + 1
-    int r = 2 * i + 2; // right = 2*i + 2
+std::vector<SortOp> selectionSortOps(const std::vector<float>& input) {
+    std::vector<float> arr = input;
+    std::vector<SortOp> ops;
 
-    if (l < n && arr[l] > arr[largest])
-        largest = l;
-    if (r < n && arr[r] > arr[largest])
-        largest = r;
+    if (arr.empty()) {
+        return ops;
+    }
+
+    for (std::size_t i = 0; i < arr.size() - 1; ++i) {
+        std::size_t minIndex = i;
+        for (std::size_t j = i + 1; j < arr.size(); ++j) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+
+        if (minIndex != i) {
+            std::swap(arr[i], arr[minIndex]);
+            addSwap(ops, static_cast<int>(i), static_cast<int>(minIndex));
+        }
+    }
+
+    return ops;
+}
+
+void heapify(std::vector<float>& arr, int n, int i, std::vector<SortOp>& ops) {
+    int largest = i;
+    int left = (2 * i) + 1;
+    int right = (2 * i) + 2;
+
+    if (left < n && arr[left] > arr[largest]) {
+        largest = left;
+    }
+
+    if (right < n && arr[right] > arr[largest]) {
+        largest = right;
+    }
 
     if (largest != i) {
         std::swap(arr[i], arr[largest]);
-        dispSort(window, arr, n, i, largest, false, 2);  // Call with updateFrequency
-        heapify(window, arr, n, largest, sorted);
+        addSwap(ops, i, largest);
+        heapify(arr, n, largest, ops);
     }
 }
 
-// Heap Sort
-void heapSort(sf::RenderWindow& window, float recHs[], int n, bool& sorted) {
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(window, recHs, n, i, sorted);
-    for (int i = n - 1; i > 0; i--) {
-        std::swap(recHs[0], recHs[i]);
-        dispSort(window, recHs, n, 0, i, false, 2);  // Call with updateFrequency
-        heapify(window, recHs, i, 0, sorted);
+std::vector<SortOp> heapSortOps(const std::vector<float>& input) {
+    std::vector<float> arr = input;
+    std::vector<SortOp> ops;
+
+    int n = static_cast<int>(arr.size());
+    for (int i = (n / 2) - 1; i >= 0; --i) {
+        heapify(arr, n, i, ops);
     }
-    sorted = true;
-    dispSort(window, recHs, n, -1, -1, true, 2);  // Call with updateFrequency
+
+    for (int i = n - 1; i > 0; --i) {
+        std::swap(arr[0], arr[i]);
+        addSwap(ops, 0, i);
+        heapify(arr, i, 0, ops);
+    }
+
+    return ops;
 }
 
-// Quick Sort Helper Function
-int partition(sf::RenderWindow& window, float arr[], int low, int high, int n, bool& sorted) {
+int partition(std::vector<float>& arr, int low, int high, std::vector<SortOp>& ops) {
     float pivot = arr[high];
     int i = low - 1;
 
-    for (int j = low; j < high; j++) {
+    for (int j = low; j < high; ++j) {
         if (arr[j] < pivot) {
-            i++;
-            std::swap(arr[i], arr[j]);
-            dispSort(window, arr, n, i, j, false, 2);  // Call with updateFrequency
+            ++i;
+            if (i != j) {
+                std::swap(arr[i], arr[j]);
+                addSwap(ops, i, j);
+            }
         }
     }
-    std::swap(arr[i + 1], arr[high]);
-    dispSort(window, arr, n, i + 1, high, false, 2);  // Call with updateFrequency
+
+    if ((i + 1) != high) {
+        std::swap(arr[i + 1], arr[high]);
+        addSwap(ops, i + 1, high);
+    }
+
     return i + 1;
 }
 
-// Quick Sort
-void quickSort(sf::RenderWindow& window, float recHs[], int low, int high, int n, bool& sorted) {
-    if (low < high) {
-        int pi = partition(window, recHs, low, high, n, sorted);
-        quickSort(window, recHs, low, pi - 1, n, sorted);
-        quickSort(window, recHs, pi + 1, high, n, sorted);
+void quickSort(std::vector<float>& arr, int low, int high, std::vector<SortOp>& ops) {
+    if (low >= high) {
+        return;
     }
-    if (low == 0 && high == n - 1) {
-        sorted = true;
-        dispSort(window, recHs, n, -1, -1, true, 2);  // Call with updateFrequency
+
+    int pi = partition(arr, low, high, ops);
+    quickSort(arr, low, pi - 1, ops);
+    quickSort(arr, pi + 1, high, ops);
+}
+
+std::vector<SortOp> quickSortOps(const std::vector<float>& input) {
+    std::vector<float> arr = input;
+    std::vector<SortOp> ops;
+
+    if (!arr.empty()) {
+        quickSort(arr, 0, static_cast<int>(arr.size()) - 1, ops);
     }
+
+    return ops;
+}
+
+}  // namespace
+
+const char* sortAlgorithmName(SortAlgorithm algorithm) {
+    switch (algorithm) {
+        case SortAlgorithm::Insertion:
+            return "Insertion";
+        case SortAlgorithm::Bubble:
+            return "Bubble";
+        case SortAlgorithm::Selection:
+            return "Selection";
+        case SortAlgorithm::Heap:
+            return "Heap";
+        case SortAlgorithm::Quick:
+            return "Quick";
+        default:
+            return "Unknown";
+    }
+}
+
+std::vector<SortOp> generateSortOps(SortAlgorithm algorithm, const std::vector<float>& values) {
+    switch (algorithm) {
+        case SortAlgorithm::Insertion:
+            return insertionSortOps(values);
+        case SortAlgorithm::Bubble:
+            return bubbleSortOps(values);
+        case SortAlgorithm::Selection:
+            return selectionSortOps(values);
+        case SortAlgorithm::Heap:
+            return heapSortOps(values);
+        case SortAlgorithm::Quick:
+            return quickSortOps(values);
+        default:
+            return {};
+    }
+}
+
+void applySortOp(std::vector<float>& values, const SortOp& op) {
+    if (op.i < 0 || op.i >= static_cast<int>(values.size())) {
+        return;
+    }
+
+    if (op.type == SortOp::Type::Swap) {
+        if (op.j < 0 || op.j >= static_cast<int>(values.size())) {
+            return;
+        }
+
+        std::swap(values[op.i], values[op.j]);
+        return;
+    }
+
+    values[op.i] = op.value;
+}
+
+bool isSortedAscending(const std::vector<float>& values) {
+    for (std::size_t i = 1; i < values.size(); ++i) {
+        if (values[i - 1] > values[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::vector<float> generateRandomBars(std::size_t count, float minValue, float maxValue) {
+    if (minValue > maxValue) {
+        std::swap(minValue, maxValue);
+    }
+
+    std::vector<float> bars(count);
+    std::mt19937 rng(std::random_device{}());
+    std::uniform_real_distribution<float> dist(minValue, maxValue);
+
+    for (float& value : bars) {
+        value = dist(rng);
+    }
+
+    return bars;
 }
