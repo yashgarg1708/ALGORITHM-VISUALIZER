@@ -50,7 +50,8 @@ void runDijkstra(std::vector<std::vector<CellType>>& grid, sf::Vector2i startPos
         if (cur == endPos) {
             sf::Vector2i bt = endPos;
             while (bt != startPos) {
-                if (bt != startPos && bt != endPos) grid[bt.x][bt.y] = PATH;
+                if (bt.x < 0 || bt.y < 0) return;
+                if (bt != startPos && bt != endPos) grid[bt.x][bt.y] = FINAL_PATH;
                 bt = prev[bt.x][bt.y];
                 window.clear(); drawGrid(grid, window); window.display();
                 std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_MS));

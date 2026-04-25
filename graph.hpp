@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-enum CellType { EMPTY, START, END, BLOCK, PATH };
+enum CellType { EMPTY, START, END, BLOCK, PATH, FINAL_PATH };
 
 extern const int GRID_WIDTH;
 extern const int GRID_HEIGHT;

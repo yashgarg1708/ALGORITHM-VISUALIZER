@@ -5,7 +5,7 @@
 #include "display_graph.hpp"
 using namespace std;
 
-const int n = 80;
+const int n = 14;
 float recHs[n];
 bool sorted = false;
 
@@ -14,11 +14,11 @@ void bubbleSort(sf::RenderWindow& window, float recHs[], int n, bool& sorted);
 void selectionSort(sf::RenderWindow& window, float recHs[], int n, bool& sorted);
 void heapSort(sf::RenderWindow& window, float recHs[], int n, bool& sorted);
 void quickSort(sf::RenderWindow& window, float recHs[], int low, int high, int n, bool& sorted);
-void dispSort(sf::RenderWindow& window, float recHs[], int n, int index1, int index2, bool sorted, int updateFrequency);
+void dispSort(sf::RenderWindow& window, float recHs[], int n, int index1, int index2, bool sorted);
 
 void resetArray() {
     for (int i = 0; i < n; i++)
-        recHs[i] = static_cast<float>(rand() % 500);
+        recHs[i] = static_cast<float>(80 + rand() % 440);
     sorted = false;
 }
 

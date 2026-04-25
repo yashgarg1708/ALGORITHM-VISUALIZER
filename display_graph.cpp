@@ -5,7 +5,7 @@
 const int GRID_WIDTH = 40;
 const int GRID_HEIGHT = 30;
 const int CELL_SIZE = 20;
-const int DELAY_MS = 50;
+const int DELAY_MS = 30;
 
 void drawGrid(const std::vector<std::vector<CellType>>& grid, sf::RenderWindow& window) {
     for (int i = 0; i < GRID_WIDTH; i++) {
@@ -13,12 +13,13 @@ void drawGrid(const std::vector<std::vector<CellType>>& grid, sf::RenderWindow& 
             sf::RectangleShape cell(sf::Vector2f(CELL_SIZE, CELL_SIZE));
             cell.setPosition({static_cast<float>(i * CELL_SIZE), static_cast<float>(j * CELL_SIZE)});
             cell.setOutlineThickness(1);
-            cell.setOutlineColor(sf::Color::Black);
-            sf::Color color = sf::Color::White;
-            if      (grid[i][j] == START) color = sf::Color::Green;
-            else if (grid[i][j] == END)   color = sf::Color::Red;
-            else if (grid[i][j] == BLOCK) color = sf::Color::Black;
-            else if (grid[i][j] == PATH)  color = sf::Color::Blue;
+            cell.setOutlineColor(sf::Color(62, 77, 91));
+            sf::Color color = sf::Color(238, 244, 248);
+            if      (grid[i][j] == START) color = sf::Color(19, 190, 99);
+            else if (grid[i][j] == END)   color = sf::Color(232, 14, 34);
+            else if (grid[i][j] == BLOCK) color = sf::Color(27, 41, 55);
+            else if (grid[i][j] == PATH)  color = sf::Color(14, 190, 237);
+            else if (grid[i][j] == FINAL_PATH) color = sf::Color(255, 189, 46);
             cell.setFillColor(color);
             window.draw(cell);
         }
